@@ -3,13 +3,17 @@
 import { Box, List, ListItem, ListItemButton, ListItemContent, Typography, Divider } from '@mui/joy'
 import { Dashboard, Today, CalendarMonth, Archive, Insights, CheckCircle } from '@mui/icons-material'
 import { NucleusSpinner } from '@/components/NucleusIcon'
+import { useRouter, usePathname } from 'next/navigation'
 
 export function Sidebar() {
+  const router = useRouter()
+  const pathname = usePathname()
+
   const menuItems = [
-    { label: 'Dashboard', icon: <Dashboard />, path: '/dashboard', active: true },
-    { label: 'Today', icon: <Today />, path: '/dashboard?filter=today' },
-    { label: 'This Week', icon: <CalendarMonth />, path: '/dashboard?filter=this-week' },
-    { label: 'Backlog', icon: <Archive />, path: '/dashboard?filter=backlog' },
+    { label: 'Dashboard', icon: <Dashboard />, path: '/dashboard' },
+    { label: 'Today', icon: <Today />, path: '/today' },
+    { label: 'This Week', icon: <CalendarMonth />, path: '/this-week' },
+    { label: 'Backlog', icon: <Archive />, path: '/backlog' },
     { label: 'Completed', icon: <CheckCircle />, path: '/completed' },
   ]
 
@@ -18,6 +22,10 @@ export function Sidebar() {
     { label: 'Evening Reflection', path: '/rituals/evening' },
     { label: 'Weekly Review', path: '/rituals/weekly' },
   ]
+
+  const handleNavigation = (path: string) => {
+    router.push(path)
+  }
 
   return (
     <Box
@@ -53,7 +61,8 @@ export function Sidebar() {
           {menuItems.map((item) => (
             <ListItem key={item.label}>
               <ListItemButton
-                selected={item.active}
+                selected={pathname === item.path}
+                onClick={() => handleNavigation(item.path)}
                 sx={{
                   borderRadius: 'sm',
                   mb: 0.5,
@@ -63,7 +72,7 @@ export function Sidebar() {
                   {item.icon}
                 </Box>
                 <ListItemContent>
-                  <Typography level="body-sm" fontWeight={item.active ? 'md' : 'normal'}>
+                  <Typography level="body-sm" fontWeight={pathname === item.path ? 'md' : 'normal'}>
                     {item.label}
                   </Typography>
                 </ListItemContent>
@@ -82,6 +91,7 @@ export function Sidebar() {
           {ritualItems.map((item) => (
             <ListItem key={item.label}>
               <ListItemButton
+                onClick={() => handleNavigation(item.path)}
                 sx={{
                   borderRadius: 'sm',
                   mb: 0.5,
@@ -102,6 +112,7 @@ export function Sidebar() {
         
         <ListItem>
           <ListItemButton
+            onClick={() => handleNavigation('/stats')}
             sx={{
               borderRadius: 'sm',
               mb: 0.5,
