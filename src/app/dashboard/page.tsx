@@ -3,11 +3,11 @@
 import { useEffect } from 'react'
 import { Box, Container, Typography, CircularProgress } from '@mui/joy'
 import { useTaskStore } from '@/stores/taskStore'
+import { getUserId } from '@/lib/supabase'
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
 import { DashboardLayout } from '@/components/dashboard/DashboardLayout'
 import { AddTaskBar } from '@/components/dashboard/AddTaskBar'
-import { TaskList } from '@/components/dashboard/TaskList'
-import { FilterTabs } from '@/components/dashboard/FilterTabs'
+import { TaskSections } from '@/components/dashboard/TaskSections'
 import { StatsCards } from '@/components/dashboard/StatsCards'
 
 export default function DashboardPage() {
@@ -16,7 +16,6 @@ export default function DashboardPage() {
     projects,
     loading,
     error,
-    filter,
     fetchTasks,
     fetchProjects,
     addTask,
@@ -24,10 +23,19 @@ export default function DashboardPage() {
     updateTask,
     deleteTask,
     snoozeTask,
-    setFilter,
   } = useTaskStore()
 
   useEffect(() => {
+    console.log('Dashboard: useEffect triggered')
+    
+    // Test authentication
+    const testAuth = async () => {
+      const userId = await getUserId()
+      console.log('Dashboard: Current user ID:', userId)
+    }
+    testAuth()
+    
+    // Re-enable fetchTasks to load from database
     fetchTasks()
     fetchProjects()
   }, [fetchTasks, fetchProjects])
@@ -53,21 +61,6 @@ export default function DashboardPage() {
     <ProtectedRoute>
       <DashboardLayout>
         <Container maxWidth="lg" sx={{ py: 3 }}>
-          {/* Header */}
-          <Box mb={4}>
-            <Typography 
-              level="h1" 
-              component="h1" 
-              mb={1}
-              sx={{ color: 'neutral.800' }}
-            >
-              Dashboard
-            </Typography>
-            <Typography level="body-lg" color="neutral">
-              Your personal cockpit for tasks and rituals
-            </Typography>
-          </Box>
-
           {/* Stats Cards */}
           <StatsCards tasks={tasks} mb={4} />
 
@@ -76,20 +69,6 @@ export default function DashboardPage() {
             <AddTaskBar
               onAdd={addTask}
               placeholder="Add a task... (press Enter to save)"
-            />
-          </Box>
-
-          {/* Filter Tabs */}
-          <Box mb={3}>
-            <FilterTabs
-              currentFilter={filter}
-              onFilterChange={setFilter}
-              taskCounts={{
-                today: tasks.filter(t => t.status !== 'completed' && t.due_date && new Date(t.due_date).toDateString() === new Date().toDateString()).length,
-                'this-week': tasks.filter(t => t.status !== 'completed' && t.due_date).length,
-                backlog: tasks.filter(t => t.status !== 'completed' && !t.due_date).length,
-                completed: tasks.filter(t => t.status === 'completed').length,
-              }}
             />
           </Box>
 
@@ -109,11 +88,11 @@ export default function DashboardPage() {
             </Box>
           )}
 
-          {/* Task List */}
-          <TaskList
+          {/* Task Sections */}
+          <TaskSections
+            key={tasks.length}
             tasks={tasks}
             projects={projects}
-            filter={filter}
             onComplete={completeTask}
             onEdit={updateTask}
             onDelete={deleteTask}

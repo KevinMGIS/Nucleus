@@ -1,7 +1,7 @@
 'use client'
 
 import { Box, List, ListItem, ListItemButton, ListItemContent, Typography, Divider } from '@mui/joy'
-import { Dashboard, Today, CalendarMonth, Archive, Insights } from '@mui/icons-material'
+import { Dashboard, Today, CalendarMonth, Archive, Insights, CheckCircle } from '@mui/icons-material'
 import { NucleusSpinner } from '@/components/NucleusIcon'
 
 export function Sidebar() {
@@ -10,6 +10,7 @@ export function Sidebar() {
     { label: 'Today', icon: <Today />, path: '/dashboard?filter=today' },
     { label: 'This Week', icon: <CalendarMonth />, path: '/dashboard?filter=this-week' },
     { label: 'Backlog', icon: <Archive />, path: '/dashboard?filter=backlog' },
+    { label: 'Completed', icon: <CheckCircle />, path: '/completed' },
   ]
 
   const ritualItems = [

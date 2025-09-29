@@ -61,7 +61,7 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
       
       const task: Task = {
         ...taskData,
-        id: `task_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        id: crypto.randomUUID(), // Use proper UUID format
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       }
@@ -69,19 +69,23 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
       // Add to local store immediately
       set((state) => ({ tasks: [...state.tasks, task] }))
       
-      // Try to sync with Supabase (will fail without proper setup, but won't break the app)
+      // Try to sync with Supabase
       try {
-        const { error } = await supabase.from('tasks').insert([{
+        const { data, error } = await (supabase as any).from('tasks').insert({
           ...task,
           user_id: userId,
-        }])
+        }).select()
         
-        if (error) throw error
+        if (error) {
+          console.error('addTask: Supabase error:', error)
+          throw error
+        }
       } catch (error) {
-        console.warn('Failed to sync task to server:', error)
+        console.warn('addTask: Failed to sync task to server:', error)
         // For now, just continue - offline mode
       }
     } catch (error) {
+      console.error('addTask: Error:', error)
       set({ error: error instanceof Error ? error.message : 'Failed to add task' })
     }
   },
@@ -99,7 +103,7 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
       
       // Try to sync with Supabase
       try {
-        const { error } = await supabase
+        const { error } = await (supabase as any)
           .from('tasks')
           .update(updatedTask)
           .eq('id', id)
@@ -158,7 +162,7 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
       
       const project: Project = {
         ...projectData,
-        id: `project_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        id: crypto.randomUUID(), // Use proper UUID format
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       }
@@ -237,16 +241,20 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
         return
       }
       
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('tasks')
         .select('*')
         .eq('user_id', userId)
         .order('created_at', { ascending: false })
       
-      if (error) throw error
+      if (error) {
+        console.error('fetchTasks: Supabase error:', error)
+        throw error
+      }
       
       set({ tasks: data || [], loading: false })
     } catch (error) {
+      console.warn('fetchTasks: Failed to fetch from database:', error)
       // For development, just use empty tasks
       set({ 
         tasks: [], 
