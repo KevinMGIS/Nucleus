@@ -10,11 +10,14 @@ interface TaskCardProps {
   onEdit: (id: string, updates: Partial<Task>) => void
   onDelete: (id: string) => void
   onComplete: (id: string) => void
+  onDragStart: (task: Task) => void
+  onDragEnd: () => void
 }
 
-function TaskCard({ task, onEdit, onDelete, onComplete }: TaskCardProps) {
+function TaskCard({ task, onEdit, onDelete, onComplete, onDragStart, onDragEnd }: TaskCardProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [editTitle, setEditTitle] = useState(task.title)
+  const [isDragging, setIsDragging] = useState(false)
 
   const handleSave = () => {
     if (editTitle.trim() && editTitle.trim() !== task.title) {
@@ -40,13 +43,24 @@ function TaskCard({ task, onEdit, onDelete, onComplete }: TaskCardProps) {
     <Card
       variant="soft"
       size="sm"
+      draggable
+      onDragStart={() => {
+        setIsDragging(true)
+        onDragStart(task)
+      }}
+      onDragEnd={() => {
+        setIsDragging(false)
+        onDragEnd()
+      }}
       sx={{
         p: 2,
         cursor: 'grab',
         transition: 'all 0.2s ease',
         bgcolor: 'neutral.100',  // Light grey background
+        opacity: isDragging ? 0.5 : 1,
+        transform: isDragging ? 'rotate(5deg)' : 'none',
         '&:hover': {
-          transform: 'translateY(-1px)',
+          transform: isDragging ? 'rotate(5deg)' : 'translateY(-1px)',
           boxShadow: 'sm',
           bgcolor: 'neutral.200',  // Slightly darker on hover
         },
@@ -172,10 +186,16 @@ interface TaskSectionProps {
   tasks: Task[]
   projects: Project[]
   color: 'primary' | 'warning' | 'neutral' | 'success'
+  sectionType: 'today' | 'week' | 'backlog'
   onComplete: (id: string) => void
   onEdit: (id: string, updates: Partial<Task>) => void
   onDelete: (id: string) => void
   onSnooze: (id: string, until: string) => void
+  onDragStart: (task: Task) => void
+  onDragEnd: () => void
+  onDrop: (sectionType: 'today' | 'week' | 'backlog') => void
+  dragOverSection: string | null
+  setDragOverSection: (section: string | null) => void
 }
 
 function TaskSection({ 
@@ -183,11 +203,17 @@ function TaskSection({
   icon, 
   tasks, 
   projects, 
-  color, 
+  color,
+  sectionType,
   onComplete, 
   onEdit, 
   onDelete, 
-  onSnooze 
+  onSnooze,
+  onDragStart,
+  onDragEnd,
+  onDrop,
+  dragOverSection,
+  setDragOverSection
 }: TaskSectionProps) {
   return (
     <Card
@@ -238,10 +264,26 @@ function TaskSection({
             minHeight: '120px',
             p: 1,
             borderRadius: 'sm',
-            backgroundColor: 'background.level1',
+            backgroundColor: dragOverSection === sectionType ? `${color}.50` : 'background.level1',
             border: '2px dashed',
-            borderColor: tasks.length > 0 ? 'transparent' : `${color}.200`,
+            borderColor: dragOverSection === sectionType ? `${color}.500` : (tasks.length > 0 ? 'transparent' : `${color}.200`),
             transition: 'all 0.2s ease',
+          }}
+          onDragOver={(e) => {
+            e.preventDefault()
+            setDragOverSection(sectionType)
+          }}
+          onDragLeave={(e) => {
+            e.preventDefault()
+            // Only clear if leaving the actual drop zone, not a child element
+            if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+              setDragOverSection(null)
+            }
+          }}
+          onDrop={(e) => {
+            e.preventDefault()
+            onDrop(sectionType)
+            setDragOverSection(null)
           }}
         >
           {tasks.length === 0 ? (
@@ -267,6 +309,8 @@ function TaskSection({
                   onEdit={onEdit}
                   onDelete={onDelete}
                   onComplete={onComplete}
+                  onDragStart={onDragStart}
+                  onDragEnd={onDragEnd}
                 />
               ))}
             </Box>
@@ -294,6 +338,9 @@ export function TaskSections({
   onDelete,
   onSnooze,
 }: TaskSectionsProps) {
+  const [draggedTask, setDraggedTask] = useState<Task | null>(null)
+  const [dragOverSection, setDragOverSection] = useState<string | null>(null)
+  
   // Get today's date in YYYY-MM-DD format
   const today = new Date()
   const todayString = today.toISOString().split('T')[0]
@@ -321,6 +368,40 @@ export function TaskSections({
     (t) => t.status !== 'completed' && !t.due_date
   )
 
+  // Handle dropping tasks into different sections
+  const handleDrop = (sectionType: 'today' | 'week' | 'backlog') => {
+    if (!draggedTask) return
+    
+    let newDueDate: string | null = null
+    
+    switch (sectionType) {
+      case 'today':
+        newDueDate = todayString
+        break
+      case 'week':
+        // Set to tomorrow if dropping in "This Week"
+        const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000)
+        newDueDate = tomorrow.toISOString().split('T')[0]
+        break
+      case 'backlog':
+        newDueDate = null
+        break
+    }
+    
+    onEdit(draggedTask.id, { due_date: newDueDate || undefined })
+    setDraggedTask(null)
+    setDragOverSection(null)
+  }
+
+  const handleDragStart = (task: Task) => {
+    setDraggedTask(task)
+  }
+
+  const handleDragEnd = () => {
+    setDraggedTask(null)
+    setDragOverSection(null)
+  }
+
   return (
     <Box>
       <TaskSection
@@ -329,10 +410,16 @@ export function TaskSections({
         tasks={todayTasks}
         projects={projects}
         color="primary"
+        sectionType="today"
         onComplete={onComplete}
         onEdit={onEdit}
         onDelete={onDelete}
         onSnooze={onSnooze}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+        onDrop={handleDrop}
+        dragOverSection={dragOverSection}
+        setDragOverSection={setDragOverSection}
       />
 
       <TaskSection
@@ -341,10 +428,16 @@ export function TaskSections({
         tasks={thisWeekTasks}
         projects={projects}
         color="warning"
+        sectionType="week"
         onComplete={onComplete}
         onEdit={onEdit}
         onDelete={onDelete}
         onSnooze={onSnooze}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+        onDrop={handleDrop}
+        dragOverSection={dragOverSection}
+        setDragOverSection={setDragOverSection}
       />
 
       <TaskSection
@@ -353,10 +446,16 @@ export function TaskSections({
         tasks={backlogTasks}
         projects={projects}
         color="neutral"
+        sectionType="backlog"
         onComplete={onComplete}
         onEdit={onEdit}
         onDelete={onDelete}
         onSnooze={onSnooze}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+        onDrop={handleDrop}
+        dragOverSection={dragOverSection}
+        setDragOverSection={setDragOverSection}
       />
     </Box>
   )
