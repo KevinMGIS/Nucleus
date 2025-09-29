@@ -213,7 +213,7 @@ export function Sidebar() {
         </Typography>
         
         <Box sx={{ px: 1, pb: 2 }}>
-          <Card variant="soft" sx={{ mb: 2 }}>
+          <Card sx={{ mb: 2, bgcolor: 'background.level1' }}>
             <CardContent sx={{ p: 2 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
                 <Typography level="body-xs" sx={{ color: 'text.secondary', fontWeight: 'md' }}>
