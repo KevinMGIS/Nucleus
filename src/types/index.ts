@@ -11,6 +11,7 @@ export interface Task {
   project_id?: string
   completed_at?: string
   snoozed_until?: string
+  weekly_focus?: boolean
   created_at: string
   updated_at: string
 }

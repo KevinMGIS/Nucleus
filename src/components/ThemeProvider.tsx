@@ -39,6 +39,10 @@ const theme = extendTheme({
           level1: '#f5f5f5',
           level2: '#e5e5e5',
         },
+        text: {
+          primary: '#171717', // Dark text for light mode
+          secondary: '#525252', // Medium dark for secondary text
+        },
         warning: {
           50: '#fff7ed',
           100: '#ffedd5',
@@ -84,6 +88,10 @@ const theme = extendTheme({
           surface: '#1e1e1e',
           level1: '#262626',
           level2: '#404040',
+        },
+        text: {
+          primary: '#ffffff', // White text for dark mode
+          secondary: '#d4d4d4', // Light gray for secondary text
         },
         warning: {
           50: '#7c2d12',

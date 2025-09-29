@@ -152,7 +152,7 @@ export default function BacklogPage() {
                           level="body-sm" 
                           fontWeight="md" 
                           sx={{ 
-                            color: 'white',
+                            color: 'text.primary',
                             flexGrow: 1,
                           }}
                         >

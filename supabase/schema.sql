@@ -34,6 +34,7 @@ CREATE TABLE IF NOT EXISTS tasks (
     priority TEXT CHECK (priority IN ('low', 'medium', 'high')),
     status TEXT CHECK (status IN ('todo', 'in_progress', 'completed', 'snoozed')) DEFAULT 'todo',
     is_feature BOOLEAN DEFAULT FALSE,
+    weekly_focus BOOLEAN DEFAULT FALSE,
     completed_at TIMESTAMPTZ,
     snoozed_until TIMESTAMPTZ,
     created_at TIMESTAMPTZ DEFAULT NOW(),
@@ -72,6 +73,7 @@ CREATE TABLE IF NOT EXISTS settings (
 CREATE INDEX IF NOT EXISTS idx_tasks_user_id ON tasks(user_id);
 CREATE INDEX IF NOT EXISTS idx_tasks_status ON tasks(status);
 CREATE INDEX IF NOT EXISTS idx_tasks_due_date ON tasks(due_date);
+CREATE INDEX IF NOT EXISTS idx_tasks_weekly_focus ON tasks(weekly_focus) WHERE weekly_focus = TRUE;
 CREATE INDEX IF NOT EXISTS idx_projects_user_id ON projects(user_id);
 CREATE INDEX IF NOT EXISTS idx_journal_user_date ON journal(user_id, date);
 

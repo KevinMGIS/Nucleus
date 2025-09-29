@@ -99,7 +99,7 @@ function TaskCard({ task, onEdit, onDelete, onComplete, onDragStart, onDragEnd }
                 sx={{ 
                   flexGrow: 1,
                   '& input': {
-                    color: 'white'
+                    color: 'text.primary'
                   }
                 }}
               />
@@ -117,7 +117,7 @@ function TaskCard({ task, onEdit, onDelete, onComplete, onDragStart, onDragEnd }
                   level="body-sm" 
                   fontWeight="md" 
                   sx={{ 
-                    color: 'white',
+                    color: 'text.primary',
                     cursor: 'pointer',
                     flexGrow: 1,
                     '&:hover': { textDecoration: 'underline' }
@@ -137,12 +137,12 @@ function TaskCard({ task, onEdit, onDelete, onComplete, onDragStart, onDragEnd }
                 )}
               </Box>
               {task.description && (
-                <Typography level="body-xs" sx={{ mt: 0.5, color: 'neutral.300' }}>
+                <Typography level="body-xs" sx={{ mt: 0.5, color: 'text.secondary' }}>
                   {task.description}
                 </Typography>
               )}
               {task.due_date && (
-                <Typography level="body-xs" sx={{ mt: 0.5, color: 'neutral.300' }}>
+                <Typography level="body-xs" sx={{ mt: 0.5, color: 'text.secondary' }}>
                   Due: {new Date(task.due_date).toLocaleDateString()}
                 </Typography>
               )}
@@ -245,7 +245,7 @@ function TaskSection({
             <Box sx={{ color: `${color}.500`, display: 'flex' }}>
               {icon}
             </Box>
-            <Typography level="h4" fontWeight="bold" sx={{ color: 'neutral.800' }}>
+            <Typography level="h4" fontWeight="bold" sx={{ color: 'text.primary' }}>
               {title}
             </Typography>
           </Box>
