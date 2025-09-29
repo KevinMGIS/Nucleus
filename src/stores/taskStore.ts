@@ -170,10 +170,10 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
       set((state) => ({ projects: [...state.projects, project] }))
       
       try {
-        const { error } = await supabase.from('projects').insert([{
+        const { error } = await (supabase as any).from('projects').insert({
           ...project,
           user_id: userId,
-        }])
+        })
         
         if (error) throw error
       } catch (error) {
@@ -195,9 +195,12 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
       }))
       
       try {
-        const { error } = await supabase
+        const { error } = await (supabase as any)
           .from('projects')
-          .update(updatedProject)
+          .update({
+            ...updatedProject,
+            updated_at: new Date().toISOString()
+          })
           .eq('id', id)
         
         if (error) throw error

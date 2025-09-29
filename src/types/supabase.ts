@@ -76,6 +76,7 @@ export interface Database {
           priority: 'low' | 'medium' | 'high' | null
           status: 'todo' | 'in_progress' | 'completed' | 'snoozed'
           is_feature: boolean
+          weekly_focus: boolean
           completed_at: string | null
           snoozed_until: string | null
           created_at: string
@@ -91,6 +92,7 @@ export interface Database {
           priority?: 'low' | 'medium' | 'high' | null
           status?: 'todo' | 'in_progress' | 'completed' | 'snoozed'
           is_feature?: boolean
+          weekly_focus?: boolean
           completed_at?: string | null
           snoozed_until?: string | null
           created_at?: string
@@ -106,6 +108,7 @@ export interface Database {
           priority?: 'low' | 'medium' | 'high' | null
           status?: 'todo' | 'in_progress' | 'completed' | 'snoozed'
           is_feature?: boolean
+          weekly_focus?: boolean
           completed_at?: string | null
           snoozed_until?: string | null
           created_at?: string

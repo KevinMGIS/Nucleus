@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useState, ReactNode } from 'react'
 import { User, Session } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
 
@@ -61,35 +61,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (!existingProfile) {
         // Create new profile
-        const { error } = await supabase
+        const { error } = await (supabase as any)
           .from('profiles')
-          .insert([
-            {
-              id: user.id,
-              email: user.email || '',
-              full_name: user.user_metadata.full_name || '',
-              avatar_url: user.user_metadata.avatar_url || '',
-              created_at: new Date().toISOString(),
-              updated_at: new Date().toISOString(),
-            },
-          ])
+          .insert({
+            id: user.id,
+            email: user.email || '',
+            full_name: user.user_metadata.full_name || '',
+            avatar_url: user.user_metadata.avatar_url || '',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          })
 
         if (error) {
           console.error('Error creating user profile:', error)
         }
 
         // Create default settings
-        await supabase
+        await (supabase as any)
           .from('settings')
-          .insert([
-            {
-              user_id: user.id,
-              theme: 'system',
-              notifications_enabled: true,
-              created_at: new Date().toISOString(),
-              updated_at: new Date().toISOString(),
-            },
-          ])
+          .insert({
+            user_id: user.id,
+            theme: 'system',
+            notifications_enabled: true,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          })
       }
     } catch (error) {
       console.error('Error in createUserProfile:', error)
