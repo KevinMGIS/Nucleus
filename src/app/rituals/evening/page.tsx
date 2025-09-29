@@ -204,11 +204,11 @@ export default function EveningRitualPage() {
 
               {completedTodayTasks.length === 0 ? (
                 <Box sx={{ textAlign: 'center', py: 4 }}>
-                  <AccessTime sx={{ fontSize: '2rem', color: 'neutral.300', mb: 2 }} />
-                  <Typography level="body-md" color="neutral" mb={1}>
+                  <AccessTime sx={{ fontSize: '2rem', color: 'text.secondary', mb: 2 }} />
+                  <Typography level="body-md" sx={{ color: 'text.primary', mb: 1 }}>
                     No tasks completed today yet
                   </Typography>
-                  <Typography level="body-sm" color="neutral">
+                  <Typography level="body-sm" sx={{ color: 'text.secondary' }}>
                     Complete some tasks throughout the day to see them here.
                   </Typography>
                 </Box>
@@ -434,7 +434,7 @@ function TodaysTaskCard({ task, projects, onComplete, onEdit, onDelete }: Todays
               level="body-sm" 
               fontWeight="md" 
               sx={{ 
-                color: 'white',
+                color: 'text.primary',
                 flexGrow: 1,
               }}
             >

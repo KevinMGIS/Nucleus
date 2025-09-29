@@ -169,12 +169,12 @@ export default function BacklogPage() {
                         )}
                       </Box>
                       {task.description && (
-                        <Typography level="body-xs" sx={{ mt: 0.5, color: 'neutral.300' }}>
+                        <Typography level="body-xs" sx={{ mt: 0.5, color: 'text.secondary' }}>
                           {task.description}
                         </Typography>
                       )}
                       {task.due_date && (
-                        <Typography level="body-xs" sx={{ mt: 0.5, color: 'neutral.300' }}>
+                        <Typography level="body-xs" sx={{ mt: 0.5, color: 'text.secondary' }}>
                           Due: {new Date(task.due_date).toLocaleDateString()}
                         </Typography>
                       )}
