@@ -119,24 +119,40 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
   
   deleteTask: async (id: string) => {
     try {
-      // Remove from local store
+      console.log('Deleting task:', id)
+      
+      // Store original tasks for potential revert
+      const originalTasks = get().tasks
+      
+      // Remove from local store immediately (optimistic update)
       set((state) => ({
         tasks: state.tasks.filter(task => task.id !== id)
       }))
       
       // Try to sync with Supabase
       try {
-        const { error } = await supabase
+        const { error } = await (supabase as any)
           .from('tasks')
           .delete()
           .eq('id', id)
         
-        if (error) throw error
+        if (error) {
+          console.error('Supabase error deleting task:', error)
+          // Revert the optimistic update on error
+          set({ tasks: originalTasks })
+          throw error
+        }
+        
+        console.log('Task deleted successfully')
       } catch (error) {
-        console.warn('Failed to sync task deletion to server:', error)
+        console.error('Failed to sync task deletion to server:', error)
+        // Revert the optimistic update on error
+        set({ tasks: originalTasks })
+        throw error
       }
     } catch (error) {
       set({ error: error instanceof Error ? error.message : 'Failed to delete task' })
+      console.error('Failed to delete task:', error)
     }
   },
   

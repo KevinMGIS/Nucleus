@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google'
 import { AuthProvider } from '@/contexts/AuthContext'
 import ThemeProvider from '@/components/ThemeProvider'
 import IPadDesktopForcer from '@/components/iPadDesktopForcer'
+import { ErrorBoundary } from '@/components/ErrorBoundary'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -32,11 +33,13 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <IPadDesktopForcer />
-        <ThemeProvider>
-          <AuthProvider>
-            {children}
-          </AuthProvider>
-        </ThemeProvider>
+        <ErrorBoundary>
+          <ThemeProvider>
+            <AuthProvider>
+              {children}
+            </AuthProvider>
+          </ThemeProvider>
+        </ErrorBoundary>
       </body>
     </html>
   )
