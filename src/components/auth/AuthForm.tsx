@@ -77,7 +77,7 @@ export function AuthForm({ mode, onToggleMode, onSuccess }: AuthFormProps) {
 
         <form onSubmit={handleSubmit}>
           <FormControl sx={{ mb: 2 }}>
-            <FormLabel>Email</FormLabel>
+            <FormLabel sx={{ color: 'neutral.700' }}>Email</FormLabel>
             <Input
               type="email"
               value={email}
@@ -89,7 +89,7 @@ export function AuthForm({ mode, onToggleMode, onSuccess }: AuthFormProps) {
           </FormControl>
 
           <FormControl sx={{ mb: 3 }}>
-            <FormLabel>Password</FormLabel>
+            <FormLabel sx={{ color: 'neutral.700' }}>Password</FormLabel>
             <Input
               type="password"
               value={password}
