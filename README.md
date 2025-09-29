@@ -2,6 +2,8 @@
 
 A personal web-based cockpit for tasks and rituals. Designed to be fast, simple, and habit-friendly—a place to capture, prioritize, and review without the bloat of project management tools.
 
+<!-- Build: Fixed TypeScript and Supabase errors for deployment -->
+
 ## Features
 
 ### Core Experience
