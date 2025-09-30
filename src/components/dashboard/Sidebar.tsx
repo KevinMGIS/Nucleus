@@ -1,7 +1,7 @@
 'use client'
 
 import { Box, List, ListItem, ListItemButton, ListItemContent, Typography, Divider, Card, CardContent, Chip } from '@mui/joy'
-import { Dashboard, Today, CalendarMonth, Archive, CheckCircle, TrendingUp, EmojiEvents, LocalFireDepartment, WbSunny, NightlightRound, CalendarViewWeek } from '@mui/icons-material'
+import { Dashboard, Today, CalendarMonth, Archive, CheckCircle, TrendingUp, EmojiEvents, LocalFireDepartment, WbSunny, NightlightRound, CalendarViewWeek, FolderOpen } from '@mui/icons-material'
 import { NucleusSpinner } from '@/components/NucleusIcon'
 import { useRouter, usePathname } from 'next/navigation'
 import { useTaskStore } from '@/stores/taskStore'
@@ -11,14 +11,15 @@ import { useEffect, useMemo } from 'react'
 export function Sidebar() {
   const router = useRouter()
   const pathname = usePathname()
-  const { tasks, fetchTasks } = useTaskStore()
+  const { tasks, fetchTasks, projects, fetchProjects } = useTaskStore()
   const { entries, fetchEntries } = useJournalStore()
 
   // Fetch data on component mount
   useEffect(() => {
     fetchTasks()
     fetchEntries()
-  }, [fetchTasks, fetchEntries])
+    fetchProjects()
+  }, [fetchTasks, fetchEntries, fetchProjects])
 
   // Calculate stats
   const stats = useMemo(() => {
@@ -115,6 +116,10 @@ export function Sidebar() {
     { label: 'Completed', icon: <CheckCircle />, path: '/completed' },
   ]
 
+  const projectItems = [
+    { label: 'All Projects', path: '/projects' },
+  ]
+
   const ritualItems = [
     { label: 'Morning Ritual', path: '/rituals/morning' },
     { label: 'Evening Reflection', path: '/rituals/evening' },
@@ -168,6 +173,43 @@ export function Sidebar() {
               >
                 <Box sx={{ mr: 2, display: 'flex', alignItems: 'center' }}>
                   {item.icon}
+                </Box>
+                <ListItemContent>
+                  <Typography level="body-sm" fontWeight={pathname === item.path ? 'md' : 'normal'}>
+                    {item.label}
+                  </Typography>
+                </ListItemContent>
+              </ListItemButton>
+            </ListItem>
+          ))}
+        </List>
+
+        <Divider sx={{ my: 2 }} />
+
+        {/* Projects Section */}
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', px: 2, pb: 1 }}>
+          <Typography level="body-xs" sx={{ color: 'text.secondary', fontWeight: 'bold', textTransform: 'uppercase' }}>
+            Projects
+          </Typography>
+          {projects.length > 0 && (
+            <Chip size="sm" variant="soft" color="primary">
+              {projects.length}
+            </Chip>
+          )}
+        </Box>
+        <List size="sm">
+          {projectItems.map((item) => (
+            <ListItem key={item.label}>
+              <ListItemButton
+                selected={pathname === item.path}
+                onClick={() => handleNavigation(item.path)}
+                sx={{
+                  borderRadius: 'sm',
+                  mb: 0.5,
+                }}
+              >
+                <Box sx={{ mr: 2, display: 'flex', alignItems: 'center' }}>
+                  <FolderOpen />
                 </Box>
                 <ListItemContent>
                   <Typography level="body-sm" fontWeight={pathname === item.path ? 'md' : 'normal'}>

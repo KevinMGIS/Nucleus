@@ -114,6 +114,20 @@ export function TaskItem({ task, project, onComplete, onEdit, onDelete, onSnooze
                     Feature
                   </Chip>
                 )}
+                {project && (
+                  <Chip
+                    size="sm"
+                    variant="soft"
+                    startDecorator={<FolderOpen />}
+                    sx={{ 
+                      backgroundColor: project.color || '#e3f2fd',
+                      color: project.color ? '#fff' : 'text.primary',
+                      borderColor: project.color || 'primary.300',
+                    }}
+                  >
+                    {project.name}
+                  </Chip>
+                )}
                 <Typography
                   level="body-md"
                   sx={{
@@ -139,22 +153,6 @@ export function TaskItem({ task, project, onComplete, onEdit, onDelete, onSnooze
                   startDecorator={<Flag />}
                 >
                   {task.priority}
-                </Chip>
-              )}
-
-              {/* Project */}
-              {project && (
-                <Chip
-                  size="sm"
-                  variant="soft"
-                  startDecorator={<FolderOpen />}
-                  sx={{ 
-                    backgroundColor: project.color || '#e3f2fd',
-                    color: project.color ? '#fff' : 'text.primary',
-                    borderColor: project.color || 'primary.300',
-                  }}
-                >
-                  {project.name}
                 </Chip>
               )}
 

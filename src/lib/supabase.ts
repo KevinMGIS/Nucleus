@@ -7,15 +7,23 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 // Add environment validation for better debugging
 if (!supabaseUrl) {
   console.error('Missing NEXT_PUBLIC_SUPABASE_URL environment variable')
+  console.log('Create a .env.local file with your Supabase credentials or use mock values for testing')
   throw new Error('Missing NEXT_PUBLIC_SUPABASE_URL environment variable')
 }
 
 if (!supabaseAnonKey) {
   console.error('Missing NEXT_PUBLIC_SUPABASE_ANON_KEY environment variable')
+  console.log('Create a .env.local file with your Supabase credentials or use mock values for testing')
   throw new Error('Missing NEXT_PUBLIC_SUPABASE_ANON_KEY environment variable')
 }
 
-console.log('Supabase URL configured:', supabaseUrl.substring(0, 20) + '...')
+// Check if we're using mock values
+const isMockEnvironment = supabaseUrl.includes('mock-project') || supabaseUrl.includes('localhost')
+if (isMockEnvironment) {
+  console.log('🧪 Running in mock mode - data will not persist')
+} else {
+  console.log('🔗 Supabase URL configured:', supabaseUrl.substring(0, 30) + '...')
+}
 
 export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
   auth: {

@@ -69,6 +69,13 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
       // Add to local store immediately
       set((state) => ({ tasks: [...state.tasks, task] }))
       
+      console.log('addTask: Task added to store:', {
+        id: task.id,
+        title: task.title,
+        due_date: task.due_date,
+        status: task.status
+      })
+      
       // Try to sync with Supabase
       try {
         const { data, error } = await (supabase as any).from('tasks').insert({
@@ -298,6 +305,11 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
         .order('created_at', { ascending: false })
       
       if (error) throw error
+      
+      console.log('fetchProjects: Fetched projects from Supabase:', data?.map((p: any) => ({
+        id: p.id,
+        name: p.name
+      })))
       
       set({ projects: data || [] })
     } catch (error) {

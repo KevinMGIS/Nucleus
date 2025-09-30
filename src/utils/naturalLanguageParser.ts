@@ -68,9 +68,10 @@ export class NaturalLanguageTaskParser {
       const dueDate = this.parseDateString(dateResult.extracted)
       if (dueDate) {
         parsed.due_date = dueDate
-        workingText = dateResult.remainingText
         confidence += 0.1
       }
+      // Always update workingText if symbol was found, regardless of parsing success
+      workingText = dateResult.remainingText
     }
 
     // Extract priority (! symbol)
@@ -79,9 +80,10 @@ export class NaturalLanguageTaskParser {
       const priority = this.parsePriorityString(priorityResult.extracted)
       if (priority) {
         parsed.priority = priority
-        workingText = priorityResult.remainingText
         confidence += 0.1
       }
+      // Always update workingText if symbol was found, regardless of parsing success
+      workingText = priorityResult.remainingText
     }
 
     // Extract project ($ symbol)
@@ -90,9 +92,10 @@ export class NaturalLanguageTaskParser {
       const projectId = this.findProjectByName(projectResult.extracted)
       if (projectId) {
         parsed.project_id = projectId
-        workingText = projectResult.remainingText
         confidence += 0.1
       }
+      // Always update workingText if symbol was found, regardless of parsing success
+      workingText = projectResult.remainingText
     }
 
     // Extract feature (% symbol)
@@ -101,9 +104,10 @@ export class NaturalLanguageTaskParser {
       const featureValue = this.parseFeatureString(featureResult.extracted)
       if (featureValue) {
         parsed.is_feature = featureValue
-        workingText = featureResult.remainingText
         confidence += 0.1
       }
+      // Always update workingText if symbol was found, regardless of parsing success
+      workingText = featureResult.remainingText
     }
 
     // Remaining text becomes the title

@@ -2,11 +2,12 @@
 
 import { useState } from 'react'
 import { Box, Typography, Card, CardContent, Chip, IconButton, Input, Menu, MenuButton, MenuItem, Dropdown, Radio } from '@mui/joy'
-import { Today, CalendarMonth, Archive, CheckCircle, Edit, MoreVert, Delete, Check, Close } from '@mui/icons-material'
+import { Today, CalendarMonth, Archive, CheckCircle, Edit, MoreVert, Delete, Check, Close, FolderOpen, Rocket } from '@mui/icons-material'
 import { Task, Project } from '@/types'
 
 interface TaskCardProps {
   task: Task
+  projects: Project[]
   onEdit: (id: string, updates: Partial<Task>) => void
   onDelete: (id: string) => void
   onComplete: (id: string) => void
@@ -14,7 +15,7 @@ interface TaskCardProps {
   onDragEnd: () => void
 }
 
-function TaskCard({ task, onEdit, onDelete, onComplete, onDragStart, onDragEnd }: TaskCardProps) {
+function TaskCard({ task, projects, onEdit, onDelete, onComplete, onDragStart, onDragEnd }: TaskCardProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [editTitle, setEditTitle] = useState(task.title)
   const [isDragging, setIsDragging] = useState(false)
@@ -126,24 +127,63 @@ function TaskCard({ task, onEdit, onDelete, onComplete, onDragStart, onDragEnd }
                 >
                   {task.title}
                 </Typography>
-                {task.priority && (
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  {task.is_feature && (
+                    <Chip
+                      size="sm"
+                      variant="soft"
+                      color="primary"
+                      startDecorator={<Rocket />}
+                    >
+                      Feature
+                    </Chip>
+                  )}
+                  {task.project_id && (() => {
+                    const project = projects.find(p => p.id === task.project_id)
+                    return project ? (
+                      <Chip
+                        size="sm"
+                        variant="soft"
+                        startDecorator={<FolderOpen />}
+                        sx={{ 
+                          backgroundColor: project.color || '#e3f2fd',
+                          color: project.color ? '#fff' : 'text.primary',
+                          borderColor: project.color || 'primary.300',
+                        }}
+                      >
+                        {project.name}
+                      </Chip>
+                    ) : null
+                  })()}
+                  {task.priority && (
+                    <Chip
+                      size="sm"
+                      color={task.priority === 'high' ? 'danger' : task.priority === 'medium' ? 'warning' : 'neutral'}
+                      variant="soft"
+                    >
+                      {task.priority}
+                    </Chip>
+                  )}
+                </Box>
+              </Box>
+              
+              {/* Additional metadata row */}
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 1 }}>
+                {/* Due Date */}
+                {task.due_date && (
                   <Chip
                     size="sm"
-                    color={task.priority === 'high' ? 'danger' : task.priority === 'medium' ? 'warning' : 'neutral'}
                     variant="soft"
+                    color={new Date(task.due_date) < new Date() ? 'danger' : 'primary'}
                   >
-                    {task.priority}
+                    {new Date(task.due_date).toLocaleDateString()}
                   </Chip>
                 )}
               </Box>
+              
               {task.description && (
                 <Typography level="body-xs" sx={{ mt: 0.5, color: 'text.secondary' }}>
                   {task.description}
-                </Typography>
-              )}
-              {task.due_date && (
-                <Typography level="body-xs" sx={{ mt: 0.5, color: 'text.secondary' }}>
-                  Due: {new Date(task.due_date).toLocaleDateString()}
                 </Typography>
               )}
             </>
@@ -306,6 +346,7 @@ function TaskSection({
                 <TaskCard
                   key={task.id}
                   task={task}
+                  projects={projects}
                   onEdit={onEdit}
                   onDelete={onDelete}
                   onComplete={onComplete}
@@ -350,23 +391,39 @@ export function TaskSections({
   
   // Filter tasks into sections
   const todayTasks = tasks.filter((t) => {
-    if (t.status === 'completed' || !t.due_date) return false
+    if (t.status === 'completed') return false
+    if (!t.due_date) return false
     const taskDateString = t.due_date.split('T')[0] // Get YYYY-MM-DD part
     return taskDateString === todayString
   })
 
   const thisWeekTasks = tasks.filter((t) => {
-    if (t.status === 'completed' || !t.due_date) return false
+    if (t.status === 'completed') return false
+    if (!t.due_date) return false
     const taskDate = new Date(t.due_date)
     const taskDateString = t.due_date.split('T')[0]
     
-    // Include tasks from tomorrow through end of week
-    return taskDateString !== todayString && taskDate <= weekFromNow && taskDate > today
+    // Include ALL tasks with dates that are NOT today (past, future, this week, etc.)
+    return taskDateString !== todayString
   })
 
   const backlogTasks = tasks.filter(
     (t) => t.status !== 'completed' && !t.due_date
   )
+
+  // Debug logging
+  console.log('TaskSections Debug:', {
+    totalTasks: tasks.length,
+    todayTasks: todayTasks.length,
+    scheduledTasks: thisWeekTasks.length,
+    backlogTasks: backlogTasks.length,
+    totalProjects: projects.length,
+    projectNames: projects.map(p => p.name),
+    tasksWithProjects: tasks.filter(t => t.project_id).map(t => ({
+      title: t.title,
+      project_id: t.project_id
+    }))
+  })
 
   // Handle dropping tasks into different sections
   const handleDrop = (sectionType: 'today' | 'week' | 'backlog') => {
@@ -423,7 +480,7 @@ export function TaskSections({
       />
 
       <TaskSection
-        title="This Week"
+        title="Scheduled"
         icon={<CalendarMonth />}
         tasks={thisWeekTasks}
         projects={projects}
