@@ -16,7 +16,7 @@ import {
   Input,
   Button,
 } from '@mui/joy'
-import { MoreVert, Edit, Delete, Snooze, Flag } from '@mui/icons-material'
+import { MoreVert, Edit, Delete, Snooze, Flag, FolderOpen, Rocket } from '@mui/icons-material'
 import { Task, Project } from '@/types'
 import { format, parseISO } from 'date-fns'
 
@@ -103,18 +103,29 @@ export function TaskItem({ task, project, onComplete, onEdit, onDelete, onSnooze
                 sx={{ fontSize: '1rem', fontWeight: 'md' }}
               />
             ) : (
-              <Typography
-                level="body-md"
-                sx={{
-                  textDecoration: task.status === 'completed' ? 'line-through' : 'none',
-                  fontWeight: task.is_feature ? 'bold' : 'normal',
-                  cursor: 'pointer',
-                }}
-                onClick={() => setIsEditing(true)}
-              >
-                {task.is_feature && '🚀 '}
-                {task.title}
-              </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                {task.is_feature && (
+                  <Chip
+                    size="sm"
+                    variant="soft"
+                    color="primary"
+                    startDecorator={<Rocket />}
+                  >
+                    Feature
+                  </Chip>
+                )}
+                <Typography
+                  level="body-md"
+                  sx={{
+                    textDecoration: task.status === 'completed' ? 'line-through' : 'none',
+                    fontWeight: task.is_feature ? 'bold' : 'normal',
+                    cursor: 'pointer',
+                  }}
+                  onClick={() => setIsEditing(true)}
+                >
+                  {task.title}
+                </Typography>
+              </Box>
             )}
 
             {/* Metadata */}
@@ -135,10 +146,12 @@ export function TaskItem({ task, project, onComplete, onEdit, onDelete, onSnooze
               {project && (
                 <Chip
                   size="sm"
-                  variant="outlined"
+                  variant="soft"
+                  startDecorator={<FolderOpen />}
                   sx={{ 
-                    borderColor: project.color || 'neutral.300',
-                    color: project.color || 'text.primary',
+                    backgroundColor: project.color || '#e3f2fd',
+                    color: project.color ? '#fff' : 'text.primary',
+                    borderColor: project.color || 'primary.300',
                   }}
                 >
                   {project.name}

@@ -6,6 +6,7 @@ interface ParsedTaskData {
   due_date?: string
   project_id?: string
   description?: string
+  is_feature?: boolean
 }
 
 interface ParseResult {
@@ -18,7 +19,8 @@ interface ParseResult {
 const SYMBOLS = {
   date: '#',      // #tomorrow, #monday, #2024-01-15
   priority: '!',  // !high, !medium, !low
-  project: '$'    // $projectname
+  project: '$',   // $projectname
+  feature: '%'    // %Feat
 }
 
 // Priority levels
@@ -93,6 +95,17 @@ export class NaturalLanguageTaskParser {
       }
     }
 
+    // Extract feature (% symbol)
+    const featureResult = this.extractWithSymbol(workingText, SYMBOLS.feature)
+    if (featureResult.extracted) {
+      const featureValue = this.parseFeatureString(featureResult.extracted)
+      if (featureValue) {
+        parsed.is_feature = featureValue
+        workingText = featureResult.remainingText
+        confidence += 0.1
+      }
+    }
+
     // Remaining text becomes the title
     parsed.title = workingText.trim() || cleanInput
 
@@ -104,7 +117,7 @@ export class NaturalLanguageTaskParser {
   }
 
   private extractWithSymbol(text: string, symbol: string): { extracted?: string, remainingText: string } {
-    const regex = new RegExp(`\\${symbol}([^\\s\\${SYMBOLS.date}\\${SYMBOLS.priority}\\${SYMBOLS.project}]+)`, 'gi')
+    const regex = new RegExp(`\\${symbol}([^\\s\\${SYMBOLS.date}\\${SYMBOLS.priority}\\${SYMBOLS.project}\\${SYMBOLS.feature}]+)`, 'gi')
     const match = regex.exec(text)
     
     if (match) {
@@ -218,6 +231,17 @@ export class NaturalLanguageTaskParser {
     return null
   }
 
+  private parseFeatureString(featureStr: string): boolean | null {
+    const lowerFeature = featureStr.toLowerCase()
+    
+    // Check if it's a feature tag
+    if (lowerFeature === 'feat' || lowerFeature === 'feature') {
+      return true
+    }
+    
+    return null
+  }
+
   private findProjectByName(projectName: string): string | null {
     const lowerProjectName = projectName.toLowerCase()
     
@@ -264,7 +288,8 @@ export class NaturalLanguageTaskParser {
     const suggestions = [
       'Use #tomorrow, #monday, or #2024-01-15 for due dates',
       'Use !high, !medium, or !low for priority',
-      'Use $projectname to assign to a project'
+      'Use $projectname to assign to a project',
+      'Use %Feat to mark as a feature'
     ]
     
     if (this.projects.length > 0) {

@@ -12,7 +12,7 @@ interface AddTaskBarProps {
   placeholder?: string
 }
 
-export function AddTaskBar({ onAdd, placeholder = "Add a task... (try: 'Review Code #tomorrow !high $Website')" }: AddTaskBarProps) {
+export function AddTaskBar({ onAdd, placeholder = "Add a task... (try: 'Review Code #tomorrow !high $Website %Feat')" }: AddTaskBarProps) {
   const [title, setTitle] = useState('')
   const [parser, setParser] = useState<NaturalLanguageTaskParser | null>(null)
   const [parsedPreview, setParsedPreview] = useState<any>(null)
@@ -70,7 +70,7 @@ export function AddTaskBar({ onAdd, placeholder = "Add a task... (try: 'Review C
       const taskData = {
         title: parsedData.title,
         status: 'todo' as const,
-        is_feature: false,
+        is_feature: parsedData.is_feature || false,
         // Add parsed fields if they exist
         ...(parsedData.priority && { priority: parsedData.priority }),
         ...(parsedData.due_date && { due_date: parsedData.due_date }),
@@ -219,6 +219,16 @@ export function AddTaskBar({ onAdd, placeholder = "Add a task... (try: 'Review C
                 {projects.find(p => p.id === parsedPreview.parsed.project_id)?.name || 'Project'}
               </Chip>
             )}
+            {parsedPreview.parsed.is_feature && (
+              <Chip 
+                size="sm" 
+                variant="soft" 
+                color="primary"
+                startDecorator={<AutoAwesome sx={{ fontSize: 14 }} />}
+              >
+                Feature
+              </Chip>
+            )}
           </Box>
 
           {parsedPreview.suggestions && parsedPreview.suggestions.length > 0 && (
@@ -239,7 +249,7 @@ export function AddTaskBar({ onAdd, placeholder = "Add a task... (try: 'Review C
         '&:hover': { opacity: 1 }
       }}>
         <Typography level="body-xs" sx={{ color: 'text.secondary', textAlign: 'center' }}>
-          💡 Quick syntax: <strong>#tomorrow</strong> for dates • <strong>!high</strong> for priority • <strong>$project</strong> for projects
+          💡 Quick syntax: <strong>#tomorrow</strong> for dates • <strong>!high</strong> for priority • <strong>$project</strong> for projects • <strong>%Feat</strong> for features
         </Typography>
       </Box>
     </Box>
